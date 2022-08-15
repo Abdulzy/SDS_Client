@@ -1,5 +1,6 @@
 package RMI;
 
+import java.io.File;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -7,6 +8,8 @@ public interface ChatClientInt extends Remote {
 	public String getName() throws RemoteException;
 
 	public void sendMessage(ChatClientInt c,String msg) throws RemoteException;
+
+	public void sendFile(ChatClientInt c, File file) throws RemoteException;
 
 	public void receiveMessage(String ClientName, String msg) throws RemoteException;
 

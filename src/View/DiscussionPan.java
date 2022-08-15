@@ -159,10 +159,6 @@ public class DiscussionPan extends JPanel {
 			JOptionPane.showMessageDialog(this, "You need to type a name.");
 			return;
 		}
-		if (login.getText().toLowerCase().equals("community")) {
-			JOptionPane.showMessageDialog(this, "This name can't be used");
-			return;
-		}
 		if (ip.getText().length() < 2) {
 			JOptionPane.showMessageDialog(this, "You need to type an IP.");
 			return;
@@ -202,7 +198,7 @@ public class DiscussionPan extends JPanel {
 						
 						Manager.writeFtile("Chat/"+login.getText()+"/"+clientInt.getName(), "");
 						
-						ChatPan cp = new ChatPan(client,clientInt);
+						ChatPan cp = new ChatPan(client,clientInt,ip.getText().toString());
 						tabbeClient.addTab(clientInt.getName(), Manager.getImg("img/arp.png", 30, 30), cp);
 						
 						

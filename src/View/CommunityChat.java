@@ -33,7 +33,7 @@ import RMI.ChatClientInt;
 
 public class CommunityChat extends JPanel {
   private static final long serialVersionUID = 1L;
-  private ChatClient client;
+  private ChatClientInt client;
   private ChatClientInt clientInt;
 
   public JPanel bar, chat;
@@ -43,14 +43,13 @@ public class CommunityChat extends JPanel {
 
   public CommunityChat(){
     try {
-      this.client = new ChatClient("Community");
-      this.clientInt = new ChatClient("Community");
+      this.client = new ChatClient("setuppp");
+      this.clientInt = new ChatClient("blickson");
     } catch (RemoteException e) {
       e.printStackTrace();
     }
-
-    Manager.Mkdir("Chat");
-    Manager.Mkdir("Chat/"+"Community");
+    Manager.Mkdir("Chat/");
+    Manager.Mkdir("Chat/"+"temp");
     build();
     fillChat();
   };

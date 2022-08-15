@@ -17,7 +17,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -30,11 +35,14 @@ import javax.swing.filechooser.FileSystemView;
 
 import RMI.ChatClient;
 import RMI.ChatClientInt;
+import RMI.ChatServerInt;
 
 public class ChatPan extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private ChatClient client;
+	private ChatClientInt client;
 	private ChatClientInt clientInt;
+	public static ChatServerInt server;
+	Vector<ChatClientInt> listClient;
 
 	public JPanel bar, chat;
 	private JScrollPane showScrollPane;
@@ -48,7 +56,7 @@ public class ChatPan extends JPanel {
 		validate();
 	};
 
-	public ChatPan(ChatClient client, ChatClientInt clientInt) {
+	public ChatPan(ChatClientInt client, ChatClientInt clientInt,String ip) throws RemoteException, NotBoundException, MalformedURLException {
 		setSize(1000, 700);
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createBevelBorder(0, Color.black, Color.black));
@@ -60,6 +68,7 @@ public class ChatPan extends JPanel {
 				repaint();
 			}
 		});
+		server = (ChatServerInt) Naming.lookup("rmi://" + ip + "/chat");
 
 		validate();
 
@@ -103,9 +112,17 @@ public class ChatPan extends JPanel {
 					if(msg.getText().trim().isEmpty()){
 						return;
 					}
-					client.sendMessage(clientInt, msg.getText());
-					Manager.writeMsg(1,"Chat/"+client.getName()+"/"+clientInt.getName(),msg.getText());
-					sendMessage(msg.getText(), true);
+					String sent = msg.getText();
+					System.out.println(sent + "actual location");
+					client.sendMessage(clientInt, sent);
+					System.out.println(sent + "after client");
+					Manager.writeMsg(1,"Chat/"+client.getName()+"/"+clientInt.getName(),sent);
+					System.out.println(sent + "after msg");
+					sendMessage(sent, true);
+					System.out.println(sent + "after send ");
+					if(clientInt.getName().equalsIgnoreCase("community")){
+						communityMessage(sent);
+					}
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
@@ -126,6 +143,9 @@ public class ChatPan extends JPanel {
 						client.sendFile(clientInt, file);
 						sendFile(file, true);
 						Manager.writeMsg(3,"Chat/"+client.getName()+"/"+clientInt.getName(),file.getPath());
+						if(clientInt.getName().equalsIgnoreCase("community")){
+							communityFile(file);
+						}
 					}
 				} catch (Exception error) {
 					System.err.println(error);
@@ -141,6 +161,48 @@ public class ChatPan extends JPanel {
 		add(showScrollPane, BorderLayout.CENTER);
 		revalidate();
 		repaint();
+	}
+	@SuppressWarnings("unchecked")
+	private void communityMessage(String msg) throws RemoteException {
+		listClient = server.getConnected();
+		System.out.println(msg + ": we got here");
+		if (listClient != null) {
+			for (int i = 0; i < listClient.size(); i++) {
+				try {
+					if (listClient.get(i) != null && !listClient.get(i).getName().equals(clientInt.getName())
+						&& !listClient.get(i).getName().equals(client.getName())) {
+						ChatClientInt clientTemp = (ChatClientInt) listClient.get(i);
+
+						System.out.println(msg + "sent to" + clientTemp.getName());
+
+						clientInt.sendMessage(clientTemp, msg);
+						Manager.writeMsg(1,"Chat/"+clientInt.getName()+"/"+clientTemp.getName(),msg);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	private void communityFile(File file) throws RemoteException {
+		Vector<ChatClientInt>  listClient = server.getConnected();
+		if (listClient != null) {
+			for (int i = 0; i < listClient.size(); i++) {
+				try {
+					if (listClient.get(i) != null && !listClient.get(i).getName().equals(clientInt.getName())
+						&& !listClient.get(i).getName().equals(client.getName())) {
+						ChatClientInt clientTemp = (ChatClientInt) listClient.get(i);
+
+						clientInt.sendFile(clientTemp, file);
+						Manager.writeMsg(3,"Chat/"+clientInt.getName()+"/"+clientTemp.getName(),file.getPath());
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	public void fillChat() {

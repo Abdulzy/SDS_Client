@@ -20,7 +20,7 @@ public class ChatClient extends UnicastRemoteObject implements ChatClientInt {
 
 	public ChatClient(String n) throws RemoteException {
 		super();
-		name = n;
+		name = n.toLowerCase();
 	}
 
 	@Override
@@ -44,6 +44,7 @@ public class ChatClient extends UnicastRemoteObject implements ChatClientInt {
 	public String getName() throws RemoteException {
 		return name;
 	}
+
 
 	public void setDiscussionPan(DiscussionPan d) {
 		discussionPan = d;
@@ -85,6 +86,7 @@ public class ChatClient extends UnicastRemoteObject implements ChatClientInt {
 		return false;
 	}
 
+	@Override
 	public void sendFile(ChatClientInt c, File f) {
 		// Sending The File...
 		try {

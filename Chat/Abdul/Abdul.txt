@@ -1,6 +1,2 @@
 RM]:[hello
 SM]:[hello
-RM]:[hi
-SM]:[hi
-RM]:[whats up
-SM]:[whats up

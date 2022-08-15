@@ -131,12 +131,12 @@ public class View extends JFrame {
 	}
 
 	private void FillPanel() {
-		communityChat = new CommunityChat();
+		//communityChat = new CommunityChat();
 		discussionPan= new DiscussionPan();
 		inter.setLayout(new BorderLayout());
 
 		tabbePane.addTab("    Home  ", Manager.getImg("img/home1.png", 30, 25), discussionPan);
-		tabbePane.addTab("Community Chat", Manager.getImg("img/about-us2.png", 30, 35), communityChat);
+		//tabbePane.addTab("Community Chat", Manager.getImg("img/about-us2.png", 30, 35), communityChat);
 
 		tabbePane.setSelectedIndex(0);
 		tabbePane.setFont(new Font("Tahoma", Font.BOLD, 16));
