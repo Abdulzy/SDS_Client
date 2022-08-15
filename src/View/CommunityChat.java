@@ -42,43 +42,25 @@ public class CommunityChat extends JPanel {
   private static Image img = Manager.getImg("img/background11.jpg");
 
   public CommunityChat(){
-    setSize(1000, 500);
-    setBorder(BorderFactory.createBevelBorder(0, Color.black, Color.black));
-    setOpaque(true);
-    validate();
     try {
       this.client = new ChatClient("Community");
       this.clientInt = new ChatClient("Community");
     } catch (RemoteException e) {
       e.printStackTrace();
     }
+
+    Manager.Mkdir("Chat");
+    Manager.Mkdir("Chat/"+"Community");
     build();
     fillChat();
   };
 
-  public CommunityChat(ChatClient client, ChatClientInt clientInt) {
-    setSize(1000, 700);
-    setLayout(new BorderLayout());
+  private void build() {
+    setSize(1000, 500);
     setBorder(BorderFactory.createBevelBorder(0, Color.black, Color.black));
     setOpaque(true);
-    addComponentListener(new ComponentAdapter() {
-
-      @Override
-      public void componentResized(ComponentEvent e) {
-        repaint();
-      }
-    });
-
     validate();
-
-    this.client = client;
-    this.clientInt = clientInt;
-
-    build();
-    fillChat();
-  }
-
-  private void build() {
+    this.removeAll();
     chat = new JPanel();
     chat.setOpaque(false);
     chat.setLayout(new FlowLayout());
@@ -107,12 +89,15 @@ public class CommunityChat extends JPanel {
 
       @Override
       public void actionPerformed(ActionEvent e) {
+
         try {
           if(msg.getText().trim().isEmpty()){
             return;
           }
           Manager.writeMsg(2,"Chat/"+client.getName()+"/"+clientInt.getName(),msg.getText());
           sendMessage(msg.getText(), true);
+          build();
+          fillChat();
         } catch (RemoteException e1) {
           e1.printStackTrace();
         }
@@ -130,8 +115,10 @@ public class CommunityChat extends JPanel {
         try {
           File file = new File(fd.getDirectory() + "/" + fd.getFile());
           if (fd.getDirectory() != null && fd.getFile() != null) {
-            sendFile(file, true);
             Manager.writeMsg(4,"Chat/"+client.getName()+"/"+clientInt.getName(),file.getPath());
+            sendFile(file, true);
+            build();
+            fillChat();
           }
         } catch (Exception er) {
           System.err.println(er);
@@ -139,9 +126,20 @@ public class CommunityChat extends JPanel {
       }
     });
 
+    JButton update = new JButton("refresh");
+    update.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        System.out.println("worked");
+        build();
+        fillChat();
+      }
+    });
+
     bar.add(msg);
     bar.add(send);
     bar.add(sendfile);
+    bar.add(update);
     add(showScrollPane, BorderLayout.CENTER);
     add(bar, BorderLayout.SOUTH);
     revalidate();
@@ -150,9 +148,6 @@ public class CommunityChat extends JPanel {
 
   public void fillChat() {
     try {
-      Manager.Mkdir("Chat");
-      Manager.Mkdir("Chat/"+"Community");
-      Manager.writeFtile("Chat/"+client.getName()+"/"+clientInt.getName(), "");
       Manager.readFile("Chat/"+client.getName()+"/"+clientInt.getName(),this);
     } catch (RemoteException e) {
       e.printStackTrace();
@@ -192,11 +187,11 @@ public class CommunityChat extends JPanel {
     continer.setSize(continer.getPreferredSize());
     chat.add(continer);
 
-    revalidate();
-    repaint();
-
     int height = (int)chat.getPreferredSize().getHeight();
     showScrollPane.getVerticalScrollBar().setValue(height+30);
+
+    revalidate();
+    repaint();
   }
 
   public void sendFile(File file, boolean sended) {
@@ -244,11 +239,10 @@ public class CommunityChat extends JPanel {
 
     chat.add(continer);
 
-    revalidate();
-    repaint();
-
     int height = (int)chat.getPreferredSize().getHeight();
     showScrollPane.getVerticalScrollBar().setValue(height+30);
+    revalidate();
+    repaint();
   }
 
   public void OpenFile(File file) {

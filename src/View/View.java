@@ -131,7 +131,6 @@ public class View extends JFrame {
 	}
 
 	private void FillPanel() {
-		//aboutTP = new About();
 		communityChat = new CommunityChat();
 		discussionPan= new DiscussionPan();
 		inter.setLayout(new BorderLayout());
